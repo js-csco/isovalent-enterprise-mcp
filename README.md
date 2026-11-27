@@ -50,7 +50,7 @@ MCP_TRANSPORT=http isovalent-mcp           # http://localhost:8000/mcp
 npx @modelcontextprotocol/inspector
 ```
 
-Choose transport **Streamable HTTP** and URL `http://<node-ip>:30800/mcp` (or `http://localhost:8000/mcp`).
+Choose transport **Streamable HTTP** and URL `http://<node-ip>:30810/mcp` (or `http://localhost:8000/mcp`).
 
 ## Deploy to the lab cluster
 
@@ -75,7 +75,7 @@ make it public or create a `ghcr` docker-registry secret in `mcp` and uncomment 
 ```json
 {
   "mcpServers": {
-    "isovalent": { "url": "http://<node-ip>:30800/mcp" }
+    "isovalent": { "url": "http://<node-ip>:30810/mcp" }
   }
 }
 ```
@@ -98,3 +98,12 @@ make it public or create a `ghcr` docker-registry secret in `mcp` and uncomment 
 4. Tetragon: `generate_tracing_policy` from a watchlist of attacker commands (MITRE ATT&CK)
 5. Splunk: export flows and Tetragon execs, `generate_splunk_detection` (SPL for the "N of M commands" threshold
    and network anomalies), investigation tools that pivot pod → flows → process tree
+
+## Port convention (namespace `mcp`)
+
+NodePorts are cluster-wide (range 30000–32767), so this convention is kept by hand:
+
+| NodePort | MCP server |
+|---|---|
+| 30810 | isovalent-mcp |
+| 30811 | (next server) |

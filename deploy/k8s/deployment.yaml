@@ -53,7 +53,7 @@ spec:
         - name: tmp
           emptyDir: {}
 ---
-# NodePort so Cursor on your laptop can reach http://<node-ip>:30800/mcp
+# NodePort so Cursor on your laptop can reach http://<node-ip>:30810/mcp
 apiVersion: v1
 kind: Service
 metadata:
@@ -67,4 +67,4 @@ spec:
     - name: http
       port: 8000
       targetPort: http
-      nodePort: 30800
+      nodePort: 30810
