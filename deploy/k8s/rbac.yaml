@@ -1,0 +1,44 @@
+# Read-only access for the MCP server. Write permissions (applying policies) will be
+# added in a separate, opt-in ClusterRole once write tools exist.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: isovalent-mcp
+  namespace: mcp
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: isovalent-mcp-read
+rules:
+  - apiGroups: [""]
+    resources: ["namespaces", "pods", "services", "nodes"]
+    verbs: ["get", "list"]
+  - apiGroups: ["apps"]
+    resources: ["deployments", "statefulsets", "daemonsets"]
+    verbs: ["get", "list"]
+  - apiGroups: ["networking.k8s.io"]
+    resources: ["networkpolicies"]
+    verbs: ["get", "list"]
+  - apiGroups: ["cilium.io"]
+    resources:
+      - ciliumnetworkpolicies
+      - ciliumclusterwidenetworkpolicies
+      - ciliumendpoints
+      - ciliumidentities
+      - tracingpolicies
+      - tracingpoliciesnamespaced
+    verbs: ["get", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: isovalent-mcp-read
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: isovalent-mcp-read
+subjects:
+  - kind: ServiceAccount
+    name: isovalent-mcp
+    namespace: mcp
