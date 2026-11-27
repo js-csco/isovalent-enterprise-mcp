@@ -36,8 +36,12 @@ spec:
               value: "kube-system,kube-public,kube-node-lease,local-path-storage,portainer,tetragon,hubble-timescape,mcp"
           readinessProbe:
             httpGet: { path: /healthz, port: http }
+            initialDelaySeconds: 3
+            periodSeconds: 10
           livenessProbe:
             httpGet: { path: /healthz, port: http }
+            initialDelaySeconds: 10
+            periodSeconds: 20
           resources:
             requests: { cpu: 50m, memory: 128Mi }
             limits: { memory: 512Mi }
