@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: isovalent-mcp
+  namespace: mcp
+  labels:
+    app.kubernetes.io/name: isovalent-mcp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: isovalent-mcp
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: isovalent-mcp
+    spec:
+      serviceAccountName: isovalent-mcp
+      # If the GHCR package is private, create a pull secret and uncomment:
+      # imagePullSecrets:
+      #   - name: ghcr
+      containers:
+        - name: mcp
+          image: ghcr.io/js-csco/isovalent-enterprise-mcp:main
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 8000
+          env:
+            - name: HOME
+              value: /tmp
+            - name: ENABLE_WRITE_TOOLS
+              value: "false"
+            # Comma-separated namespaces hidden from get_inventory by default.
+            - name: SYSTEM_NAMESPACES
+              value: "kube-system,kube-public,kube-node-lease,local-path-storage,portainer,tetragon,hubble-timescape,mcp"
+          readinessProbe:
+            httpGet: { path: /healthz, port: http }
+          livenessProbe:
+            httpGet: { path: /healthz, port: http }
+          resources:
+            requests: { cpu: 50m, memory: 128Mi }
+            limits: { memory: 512Mi }
+          securityContext:
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: { drop: ["ALL"] }
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}
+---
+# NodePort so Cursor on your laptop can reach http://<node-ip>:30800/mcp
+apiVersion: v1
+kind: Service
+metadata:
+  name: isovalent-mcp
+  namespace: mcp
+spec:
+  type: NodePort
+  selector:
+    app.kubernetes.io/name: isovalent-mcp
+  ports:
+    - name: http
+      port: 8000
+      targetPort: http
+      nodePort: 30800
